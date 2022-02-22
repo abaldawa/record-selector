@@ -4,6 +4,9 @@
 ### Description
 A NodeJS/Typescript based server which fetchs records from mongo DB.
 
+### Public API for testing
+POST http://ec2-54-85-181-78.compute-1.amazonaws.com:3000/records/filter
+
 ### Tech stack
 1. **Backend:** Node.js(16.14.0 LTS)/Typescript, express.js, mongoose.js.
 2. **Database** Mongo DB
