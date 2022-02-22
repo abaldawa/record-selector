@@ -1,0 +1,11 @@
+version: "3"
+services:
+  record_selector_server:
+    container_name: record_selector_server
+    restart: always
+    build: .
+    environment:
+      - PORT=3000
+      - MONGODB_URL=enter_mongodb_url
+    ports:
+      - "3000:3000"
