@@ -10,10 +10,11 @@ POST http://ec2-54-85-181-78.compute-1.amazonaws.com:3000/records/filter
 ### Tech stack
 1. **Backend:** Node.js(16.14.0 LTS)/Typescript, express.js, mongoose.js.
 2. **Database** Mongo DB
-3. **Tests:** Unit tests and integration tests (**33 tests written**)
-4. **Testing modules used:** Jest (and supertest for integration tests)
-5. **Linters and formatters:** Eslint, prettier
-6. **Container:** Docker
+3. **Testing modules used:** Jest (and supertest for integration tests)
+4. **Linters and formatters:** Eslint, prettier
+5. **Container:** Docker
+
+#### NOTE: Extensive tests are written. Unit tests are written inside `__tests__` folder and integration tests are inside ``tests/integration`` folder.
 
 ### How to run the server:
 **a] With Docker**
