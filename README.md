@@ -2,10 +2,19 @@
 ## Author: Abhijit Baldawa
 
 ### Description
-A NodeJS/Typescript based server which fetchs records from mongo DB.
+A NodeJS/Typescript based server which fetches records from mongo DB.
 
 ### Public API for testing
 POST http://ec2-54-85-181-78.compute-1.amazonaws.com:3000/records/filter
+Enter for ex. below body with POST request
+```typescript
+{
+    "startDate": "2016-01-26",
+    "endDate": "2018-02-02",
+    "minCount": 800,
+    "maxCount": 3000
+}
+```
 
 ### Tech stack
 1. **Backend:** Node.js(16.14.0 LTS)/Typescript, express.js, mongoose.js.
@@ -31,7 +40,7 @@ POST http://ec2-54-85-181-78.compute-1.amazonaws.com:3000/records/filter
 2. **cd record-selector/server**
 3. execute "**npm i**" in the terminal path to install node modules
 4. **cp .env.example .env**
-5. Execute "**vi .env**" and for nv variable '***MONGODB_URL***' enter the URL to connect to mongo DB, save the file and exit.
+5. Execute "**vi .env**" and for env variable '***MONGODB_URL***' enter the URL to connect to mongo DB, save the file and exit.
 6. Execute "**npm run start**" and it will start the http server on port **3000** (or the one you have updated in **.env** file)
 
 ### Server REST API:
@@ -57,7 +66,7 @@ interface Response {
     }>
 }
 ```
-If POST body is invalid or if there is an error in processing request then response will returned in below format:
+If POST body is invalid or if there is an error in processing request then response will be returned in below format:
 ```typescript
 interface Response {
     code: 400 | 500, // Http error code
