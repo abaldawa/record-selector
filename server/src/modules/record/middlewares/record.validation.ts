@@ -6,6 +6,7 @@ import Joi from 'joi';
 import { StatusCodes } from 'http-status-codes';
 import { ControllerFun } from '../../../rest-api/types';
 import { GetRecordsByFilterBody } from '../record.controller';
+import { ValidationError } from '../../../rest-api/errors';
 
 const getRecordsByFilterBodySchema = Joi.object().keys({
   endDate: Joi.date().required(),
@@ -25,7 +26,7 @@ const getRecordsByFilterInputValidator: ControllerFun<
   GetRecordsByFilterBody,
   never,
   never,
-  { code: StatusCodes; msg: string }
+  never
 > = ({ body }) => {
   const { error } = Joi.compile(getRecordsByFilterBodySchema)
     .prefs({ errors: { label: 'key' } })
@@ -33,13 +34,7 @@ const getRecordsByFilterInputValidator: ControllerFun<
 
   if (error) {
     const errorMessage = error.details.map(({ message }) => message).join(', ');
-    return {
-      statusCode: StatusCodes.BAD_REQUEST,
-      response: {
-        code: StatusCodes.BAD_REQUEST,
-        msg: errorMessage,
-      },
-    };
+    throw new ValidationError(StatusCodes.BAD_REQUEST, errorMessage);
   }
 };
 

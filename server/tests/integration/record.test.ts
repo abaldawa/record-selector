@@ -47,8 +47,10 @@ describe('Record routes', () => {
 
       expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       expect(response.body).toStrictEqual({
-        code: StatusCodes.BAD_REQUEST,
-        msg: expect.any(String),
+        error: {
+          code: StatusCodes.BAD_REQUEST,
+          message: expect.any(String),
+        },
       });
     });
 
@@ -65,8 +67,10 @@ describe('Record routes', () => {
 
       expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       expect(response.body).toStrictEqual({
-        code: StatusCodes.BAD_REQUEST,
-        msg: expect.any(String),
+        error: {
+          code: StatusCodes.BAD_REQUEST,
+          message: expect.any(String),
+        },
       });
     });
 
@@ -83,8 +87,10 @@ describe('Record routes', () => {
 
       expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       expect(response.body).toStrictEqual({
-        code: StatusCodes.BAD_REQUEST,
-        msg: expect.any(String),
+        error: {
+          code: StatusCodes.BAD_REQUEST,
+          message: expect.any(String),
+        },
       });
     });
 
@@ -101,8 +107,10 @@ describe('Record routes', () => {
 
       expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       expect(response.body).toStrictEqual({
-        code: StatusCodes.BAD_REQUEST,
-        msg: expect.any(String),
+        error: {
+          code: StatusCodes.BAD_REQUEST,
+          message: expect.any(String),
+        },
       });
     });
 
@@ -119,9 +127,9 @@ describe('Record routes', () => {
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body).toStrictEqual({
-        code: 0,
-        msg: 'Success',
-        records: [],
+        data: {
+          records: [],
+        },
       });
     });
 
@@ -138,9 +146,9 @@ describe('Record routes', () => {
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body).toStrictEqual({
-        code: 0,
-        msg: 'Success',
-        records: filteredRecords,
+        data: {
+          records: filteredRecords,
+        },
       });
     });
   });

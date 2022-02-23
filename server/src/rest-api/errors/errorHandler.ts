@@ -3,8 +3,11 @@
  */
 
 import { StatusCodes } from 'http-status-codes';
-import { ValidationError } from './validationError';
+import { ValidationError, ControllerError } from './errorTypes';
 import { DatabaseError } from '../../errors';
+
+type KnownErrors = ValidationError | DatabaseError | ControllerError;
+type KnownAndUnknownErrors = KnownErrors | Error;
 
 /**
  * @public
@@ -16,13 +19,13 @@ import { DatabaseError } from '../../errors';
  * @param errMsgIfNoMatch
  */
 const getErrorDetails = (
-  error: ValidationError | DatabaseError | Error,
+  error: KnownAndUnknownErrors,
   errMsgIfNoMatch: string
 ) => {
   let statusCode: StatusCodes;
   let errorMessage: string;
 
-  if (error instanceof ValidationError) {
+  if (error instanceof ValidationError || error instanceof ControllerError) {
     [statusCode, errorMessage] = [error.statusCode, error.message];
   } else if (error instanceof DatabaseError) {
     [statusCode, errorMessage] = [
@@ -39,4 +42,20 @@ const getErrorDetails = (
   return { statusCode, errorMessage };
 };
 
-export { getErrorDetails };
+const isKnownError = (error: KnownAndUnknownErrors) => {
+  if (error instanceof ValidationError) {
+    return true;
+  }
+
+  if (error instanceof DatabaseError) {
+    return true;
+  }
+
+  if (error instanceof ControllerError) {
+    return true;
+  }
+
+  return false;
+};
+
+export { KnownErrors, KnownAndUnknownErrors, getErrorDetails, isKnownError };

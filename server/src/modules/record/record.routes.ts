@@ -2,8 +2,9 @@
  * @author: abhijit.baldawa
  */
 
-import { Route, ControllerFun } from '../../rest-api/types';
-import { getRecordsByFilter } from './record.controller';
+import { StatusCodes } from 'http-status-codes';
+import { ControllerFun, Route } from '../../rest-api/types';
+import { echoHandler, getRecordsByFilter } from './record.controller';
 import { getRecordsByFilterInputValidator } from './middlewares';
 
 const ROOT_PATH = '/records';
@@ -12,10 +13,18 @@ const recordsRoutes: Route[] = [
   {
     method: 'post',
     path: `${ROOT_PATH}/filter`,
+    successStatusCode: StatusCodes.OK,
     controller: [
-      getRecordsByFilterInputValidator as ControllerFun,
+      getRecordsByFilterInputValidator as any as ControllerFun,
       getRecordsByFilter as ControllerFun,
     ],
+  },
+  {
+    method: 'post',
+    path: `${ROOT_PATH}/echo`,
+    successStatusCode: StatusCodes.OK,
+    handleRequestManually: true,
+    controller: [echoHandler as any as ControllerFun],
   },
 ];
 
