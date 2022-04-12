@@ -2,10 +2,15 @@
  * @author: abhijit.baldawa
  */
 
-import { RequestHandler } from 'express';
-import { StatusCodes } from 'http-status-codes';
-import { ControllerFun } from '../types';
+import { Request, RequestHandler, Response } from 'express';
+import {
+  ApiErrorResponse,
+  ApiSuccessResponse,
+  ControllerFun,
+  Route,
+} from '../types';
 import { logRequest } from '../utils';
+import { getErrorDetails, KnownAndUnknownErrors } from '../errors';
 
 /**
  * @public
@@ -15,58 +20,80 @@ import { logRequest } from '../utils';
  *   2] Gets the final response from the controller and sends that response
  *   3] Logs the total time taken to handle a request
  *
- * @param controllerFuns
+ * @param routeConfig
  */
 const requestHandler =
-  (controllerFuns: ControllerFun[]): RequestHandler =>
+  (
+    routeConfig: Route
+  ): RequestHandler<any, ApiSuccessResponse<any> | ApiErrorResponse> =>
   async (req, res) => {
     const requestStartTime = +new Date();
+    const {
+      controller: controllerFuns,
+      successStatusCode,
+      handleRequestManually,
+    } = routeConfig;
     const { body, params, query, method, url } = req;
 
     try {
+      if (handleRequestManually) {
+        for (const controllerFun of controllerFuns) {
+          await (
+            controllerFun as ControllerFun<
+              any,
+              any,
+              any,
+              any,
+              Request,
+              Response
+            >
+          )({
+            body,
+            params,
+            query,
+            req,
+            res,
+          });
+        }
+
+        const requestEndTime = +new Date();
+        const requestTotalTimeTaken = requestEndTime - requestStartTime;
+
+        logRequest(method, url, successStatusCode, requestTotalTimeTaken);
+        return;
+      }
+
+      let controllerResp: any;
       for (const controllerFun of controllerFuns) {
-        const controllerResp = await controllerFun({ body, params, query });
+        controllerResp = await controllerFun({ body, params, query });
 
-        if (controllerResp) {
-          res.status(controllerResp.statusCode).send(controllerResp.response);
-
-          const requestEndTime = +new Date();
-          const requestTotalTimeTaken = requestEndTime - requestStartTime;
-
-          logRequest(
-            method,
-            url,
-            controllerResp.statusCode,
-            requestTotalTimeTaken
-          );
-          return;
+        if (typeof controllerResp !== 'undefined') {
+          break;
         }
       }
 
-      /**
-       * NOTE: This should never happen as the last controller should respond with a response
-       */
-      throw new Error(`Controller returned empty response`);
+      res.status(successStatusCode).send({ data: controllerResp });
+
+      const requestEndTime = +new Date();
+      const requestTotalTimeTaken = requestEndTime - requestStartTime;
+
+      logRequest(method, url, successStatusCode, requestTotalTimeTaken);
     } catch (error) {
-      /**
-       * NOTE: This should never happen as the controllers should handle all the exception
-       *       and respond accordingly
-       */
-      const statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+      const { statusCode, errorMessage } = getErrorDetails(
+        error as KnownAndUnknownErrors,
+        'Error processing request'
+      );
+
       res.status(statusCode).send({
-        code: statusCode,
-        msg: 'Error processing request',
+        error: {
+          code: statusCode,
+          message: errorMessage,
+        },
       });
 
       const requestEndTime = +new Date();
       const requestTotalTimeTaken = requestEndTime - requestStartTime;
-      logRequest(
-        method,
-        url,
-        statusCode,
-        requestTotalTimeTaken,
-        `Controller error. Reason -> ${error}`
-      );
+      logRequest(method, url, statusCode, requestTotalTimeTaken);
     }
   };
 

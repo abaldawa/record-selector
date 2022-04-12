@@ -16,7 +16,7 @@ const getRootRouter = () => {
   const routes = [...recordsRoutes];
 
   routes.forEach((route) => {
-    rootRouter[route.method](route.path, requestHandler(route.controller));
+    rootRouter[route.method](route.path, requestHandler(route));
   });
 
   return rootRouter;

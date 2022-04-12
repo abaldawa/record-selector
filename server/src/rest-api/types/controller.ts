@@ -2,25 +2,30 @@
  * @author: abhijit.baldawa
  */
 
-import { StatusCodes } from 'http-status-codes';
+interface ApiSuccessResponse<ResponsePayload> {
+  data: ResponsePayload;
+}
 
-type ControllerReturnType<ResponsePayload> = {
-  statusCode: StatusCodes;
-  response?: ResponsePayload;
-};
+interface ApiErrorResponse {
+  error: {
+    code: number;
+    message: string;
+  };
+}
 
 type ControllerFun<
   Body = any,
   Params = any,
   Query = any,
-  ReturnType = any
+  ReturnType = any,
+  Req = never,
+  Res = any
 > = (args: {
   body?: Body;
   params?: Params;
   query?: Query;
-}) =>
-  | Promise<ControllerReturnType<ReturnType> | void>
-  | ControllerReturnType<ReturnType>
-  | void;
+  req?: Req;
+  res?: Res;
+}) => Promise<ReturnType | void> | ReturnType | void;
 
-export { ControllerFun };
+export { ApiSuccessResponse, ApiErrorResponse, ControllerFun };

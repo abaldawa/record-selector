@@ -3,11 +3,16 @@
  */
 
 import { StatusCodes } from 'http-status-codes';
+import { Request, Response } from 'express';
 import { ControllerFun } from '../../rest-api/types';
 import { FilteredRecord } from '../../database/models/record.model';
 import * as recordService from './record.service';
-import { DatabaseError } from '../../errors';
-import { ValidationError, getErrorDetails } from '../../rest-api/errors';
+import {
+  ControllerError,
+  isKnownError,
+  KnownAndUnknownErrors,
+  ValidationError,
+} from '../../rest-api/errors';
 
 interface GetRecordsByFilterBody {
   startDate: string;
@@ -17,9 +22,7 @@ interface GetRecordsByFilterBody {
 }
 
 interface GetRecordsByFilterResponse {
-  code: 0 | StatusCodes;
-  msg: string;
-  records?: FilteredRecord[];
+  records: FilteredRecord[];
 }
 
 /**
@@ -34,12 +37,7 @@ const getRecordsByFilter: ControllerFun<
   never,
   never,
   GetRecordsByFilterResponse
-> = async ({
-  body,
-}): Promise<{
-  statusCode: StatusCodes;
-  response: GetRecordsByFilterResponse;
-}> => {
+> = async ({ body }) => {
   try {
     const {
       startDate: startDateStr,
@@ -70,32 +68,41 @@ const getRecordsByFilter: ControllerFun<
       maxCount,
     });
 
-    return {
-      statusCode: StatusCodes.OK,
-      response: {
-        code: 0,
-        msg: 'Success',
-        records: filteredRecords,
-      },
-    };
+    return { records: filteredRecords };
   } catch (error: unknown) {
-    const { statusCode, errorMessage } = getErrorDetails(
-      error as ValidationError | DatabaseError | Error,
-      'Error handling request'
-    );
+    if (isKnownError(error as KnownAndUnknownErrors)) {
+      throw error;
+    }
 
-    return {
-      statusCode,
-      response: {
-        code: statusCode,
-        msg: errorMessage,
-      },
-    };
+    throw new ControllerError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      `Error handling request. Reason -> ${(error as Error).message}`
+    );
+  }
+};
+
+/**
+ * Handle response manually
+ * @param args
+ */
+const echoHandler: ControllerFun<
+  never,
+  never,
+  never,
+  never,
+  Request,
+  Response
+> = async (args) => {
+  const { req, res } = args;
+
+  if (req && res) {
+    req.pipe(res);
   }
 };
 
 export {
   GetRecordsByFilterBody,
   GetRecordsByFilterResponse,
+  echoHandler,
   getRecordsByFilter,
 };

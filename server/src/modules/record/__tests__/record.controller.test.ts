@@ -2,10 +2,10 @@
  * @author: abhijit.baldawa
  */
 
-import { StatusCodes } from 'http-status-codes';
 import { getRecordsByFilter } from '../record.controller';
 import * as recordService from '../record.service';
 import { DatabaseError } from '../../../errors';
+import { ValidationError } from '../../../rest-api/errors';
 
 const filteredRecords = [
   {
@@ -44,13 +44,7 @@ describe('Record Controller', () => {
             maxCount: minCount,
           },
         })
-      ).resolves.toStrictEqual({
-        statusCode: StatusCodes.BAD_REQUEST,
-        response: {
-          code: StatusCodes.BAD_REQUEST,
-          msg: expect.any(String),
-        },
-      });
+      ).rejects.toBeInstanceOf(ValidationError);
 
       expect(recordService.getRecordsByFilter).not.toHaveBeenCalled();
     });
@@ -65,13 +59,7 @@ describe('Record Controller', () => {
             maxCount: minCount,
           },
         })
-      ).resolves.toStrictEqual({
-        statusCode: StatusCodes.BAD_REQUEST,
-        response: {
-          code: StatusCodes.BAD_REQUEST,
-          msg: expect.any(String),
-        },
-      });
+      ).rejects.toBeInstanceOf(ValidationError);
 
       expect(recordService.getRecordsByFilter).not.toHaveBeenCalled();
     });
@@ -86,13 +74,7 @@ describe('Record Controller', () => {
             maxCount,
           },
         })
-      ).resolves.toStrictEqual({
-        statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-        response: {
-          code: StatusCodes.INTERNAL_SERVER_ERROR,
-          msg: 'DB error',
-        },
-      });
+      ).rejects.toBeInstanceOf(DatabaseError);
 
       expect(recordService.getRecordsByFilter).toHaveBeenLastCalledWith({
         startDate,
@@ -112,14 +94,7 @@ describe('Record Controller', () => {
             maxCount,
           },
         })
-      ).resolves.toStrictEqual({
-        statusCode: StatusCodes.OK,
-        response: {
-          code: 0,
-          msg: 'Success',
-          records: [],
-        },
-      });
+      ).resolves.toStrictEqual({ records: [] });
 
       expect(recordService.getRecordsByFilter).toHaveBeenLastCalledWith({
         startDate,
@@ -139,14 +114,7 @@ describe('Record Controller', () => {
             maxCount,
           },
         })
-      ).resolves.toStrictEqual({
-        statusCode: StatusCodes.OK,
-        response: {
-          code: 0,
-          msg: 'Success',
-          records: filteredRecords,
-        },
-      });
+      ).resolves.toStrictEqual({ records: filteredRecords });
 
       expect(recordService.getRecordsByFilter).toHaveBeenLastCalledWith({
         startDate,

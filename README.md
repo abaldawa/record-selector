@@ -4,9 +4,6 @@
 ### Description
 A NodeJS/Typescript based server which fetches records from mongo DB.
 
-### Public API for testing
-POST http://ec2-54-85-181-78.compute-1.amazonaws.com:3000/records/filter
-
 Enter for ex. below body with POST request
 ```typescript
 {
@@ -57,20 +54,16 @@ Enter for ex. below body with POST request
 ```
 And it responds with below format (typescript interface representation)
 ```typescript
-interface Response {
-    code: 0,
-    msg: "Success",
-    records: Array<{
-      key: string,
-      createdAt: string, // ISO date string
-      totalCount: number
-    }>
+interface ApiSuccessResponse<ResponsePayload> {
+  data: ResponsePayload;
 }
 ```
 If POST body is invalid or if there is an error in processing request then response will be returned in below format:
 ```typescript
-interface Response {
-    code: 400 | 500, // Http error code
-    msg: string, // Describes error reason
+interface ApiErrorResponse {
+  error: {
+    code: number;
+    message: string;
+  };
 }
 ```

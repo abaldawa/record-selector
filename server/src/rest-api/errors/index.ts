@@ -1,2 +1,2 @@
-export * from './validationError';
+export * from './errorTypes';
 export * from './errorHandler';
